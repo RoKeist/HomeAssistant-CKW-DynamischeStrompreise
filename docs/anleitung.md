@@ -9,7 +9,7 @@ Dieses unabhängige Community-Projekt steht in keiner Verbindung zu CKW oder zum
 - [Voraussetzungen](#voraussetzungen)
 - [1. CKW-Tarifdaten-Package einbinden](#1-ckw-tarifdaten-package-einbinden)
 - [2. Template-Sensor für den aktuellen Preis](#2-template-sensor-für-den-aktuellen-preis)
-- [2-Stunden-Zeitfenster](zeitfenster-2h.md)
+- [Hoch- & Tiefpreis Zeitfenster](zeitfenster-2h.md)
 - [Preisempfehlungen für heute und morgen](preisempfehlungen.md)
 - [3. Automationsbeispiel](#3-automationsbeispiel)
 - [Preise nach Mittag automatisch aktualisieren](#preise-nach-mittag-automatisch-aktualisieren)
@@ -62,7 +62,7 @@ Erstelle einen Template-Sensor-Helfer unter **Einstellungen → Geräte & Dienst
 
 Setze die Einheit auf `CHF/kWh`. Lasse die Geräteklasse leer. Falls der Helfer eine Zustandsklasse anbietet, wähle `measurement` (Messwert). Speichere den Helfer und prüfe die von Home Assistant erstellte Entitäts-ID. Die folgenden Beispiele verwenden `sensor.ckw_aktueller_preis`; ersetze sie durch die tatsächlich erstellte ID, falls sie abweicht.
 
-Die Einrichtung der acht 2-Stunden-Zeitfenster ist in der separaten [Anleitung zu 2-Stunden-Zeitfenstern](zeitfenster-2h.md) beschrieben. Die beiden Sensor-Helfer für die [Preisempfehlungen](preisempfehlungen.md) sind ebenfalls ausgelagert.
+Die Einrichtung der acht 2-Stunden-Zeitfenster ist in der separaten [Anleitung zu Hoch- & Tiefpreis Zeitfenstern](zeitfenster-2h.md) beschrieben. Die beiden Sensor-Helfer für die [Preisempfehlungen](preisempfehlungen.md) sind ebenfalls ausgelagert.
 ## 3. Automationsbeispiel
 
 Dieses Beispiel wird ausgelöst, wenn der aktuelle Preis die Schwelle von 0,20 CHF/kWh (20 Rp./kWh) nach unten überschreitet. Ergänze unter `actions:` die gewünschte Aktion.
