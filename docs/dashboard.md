@@ -38,7 +38,7 @@ Das Dashboard ist in zwei Bereiche gegliedert:
 
 1. Markdown-Tabelle mit allen 96 Viertelstundenpreisen von heute.
 2. Markdown-Tabelle mit allen verfügbaren Preisen von morgen.
-3. Button, der den REST-Sensor sofort erneut abfragt.
+3. Button, der den CKW-Sensor sofort erneut abfragt.
 
 Für ein Layout wie im Screenshot platziere die Karten in einer breiten Dashboard-Ansicht: links den Bereich **Strompreise**, rechts **Dynamische Strompreise** mit den beiden Tabellen nebeneinander und dem Aktualisierungsbutton daneben. In der mobilen Ansicht können Karten untereinander angeordnet werden.
 
@@ -54,7 +54,7 @@ Die Vorschau zeigt Beispielwerte vom 22. November 2026. Preise und Zeitfenster �
 
 | Anzeige | Entity-ID |
 |---|---|
-| CKW Tarifdaten (REST) | `sensor.ckw_tarifdaten` |
+| CKW Tarifdaten | `sensor.ckw_tarifdaten` |
 | CKW aktueller Strompreis | `sensor.ckw_aktueller_preis` |
 
 ### Auto-Laden-Zeitfenster
@@ -210,7 +210,7 @@ entities:
 
 ## Karten für den Bereich «Dynamische Strompreise»
 
-Die Tabellen lesen die `prices`-Daten direkt aus dem REST-Sensor. Preise werden mit zwei Dezimalstellen in Rp./kWh ausgegeben.
+Die Tabellen lesen die `prices`-Daten direkt aus `sensor.ckw_tarifdaten`. Preise werden mit zwei Dezimalstellen in Rp./kWh ausgegeben.
 
 ### CKW Preise heute
 
@@ -262,7 +262,7 @@ content: |
 
 ### CKW-Preise aktualisieren
 
-Der Button löst eine sofortige Aktualisierung des REST-Sensors aus. Er ändert das normale Abrufintervall nicht.
+Der Button löst eine sofortige Aktualisierung von `sensor.ckw_tarifdaten` aus. Er ändert das normale Abrufintervall nicht.
 
 ```yaml
 type: button
@@ -290,5 +290,5 @@ Home Assistant kann bei kleinen Displays oder schmalen Abschnitten Karten untere
 - Die Zeitfenster-Sensoren müssen zuerst als Template-Sensor-Helfer eingerichtet sein. Die Entity-IDs in diesem Dokument entsprechen dem hier verwendeten Beispiel.
 - CKW muss die Preise für morgen bereits veröffentlicht haben. Bis dahin können morgige Tabelle und Morgen-Sensoren leer oder nicht verfügbar sein.
 - Die beiden Preisempfehlungskarten greifen auf die vier jeweiligen Zeitfenster-Sensoren zu. Wenn einer davon `unknown` oder `unavailable` ist, zeigt die Karte einen Verfügbarkeitshinweis.
-- Der Button aktualisiert nur den REST-Sensor `sensor.ckw_tarifdaten`; die Preise werden nur sichtbar, wenn die API sie zurückliefert.
+- Der Button aktualisiert nur `sensor.ckw_tarifdaten`; Preise werden angezeigt, wenn CKW sie zurückliefert.
 - Die Vorschau zeigt zusätzlich eine 24-Stunden-Preisansicht. Dafür ist in der jeweiligen Home-Assistant-Konfiguration eine passende Preisreihen-Entität nötig; dieses Projekt stellt dafür keinen separaten Sensor bereit.
