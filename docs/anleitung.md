@@ -84,6 +84,64 @@ mode: single
 
 Ein numerischer Zustandsauslöser reagiert, wenn der Sensor die Schwelle überschreitet. Soll eine Aktion in jedem passenden 15-Minuten-Intervall ausgeführt werden, verwende stattdessen einen periodischen Zeitauslöser mit einer separaten Preisbedingung.
 
+### E-Mail bei Beginn eines teuren Zeitfensters
+
+Diese Automation prüft den Startzeitpunkt der beiden teuersten 2-Stunden-Zeitfenster. Wenn eines beginnt, sendet Home Assistant eine Benachrichtigung. Damit daraus eine E-Mail wird, muss in Home Assistant bereits ein E-Mail-Benachrichtigungsdienst eingerichtet sein. Ersetze `notify.deine_e_mail_benachrichtigung` durch die Entity-ID deines Benachrichtigungsdienstes.
+
+Die Vorlagen zerlegen den Sensorzustand im Format `Datum · Start–Ende · Preis` und lösen nur dann aus, wenn Datum und Startzeit mit der aktuellen Minute übereinstimmen. Verwende die tatsächlichen Entity-IDs deiner Helfer, falls Home Assistant sie anders angelegt hat.
+
+```yaml
+alias: CKW – E-Mail bei teurem Zeitfenster
+description: >-
+  Sendet eine E-Mail bei Beginn des teuersten oder zweitteuersten
+  2-Stunden-Fensters.
+triggers:
+  - trigger: template
+    id: teuerstes
+    value_template: >-
+      {% set s = states('sensor.ckw_teuerstes_zeitfenster_von_2h') %}
+      {% set teile = s.split(' · ') %}
+      {% if teile | count >= 2 %}
+        {% set startzeit = teile[1].split('–')[0] %}
+        {{ now().strftime('%Y-%m-%d %H:%M') == teile[0] ~ ' ' ~ startzeit }}
+      {% else %}
+        false
+      {% endif %}
+  - trigger: template
+    id: zweitteuerstes
+    value_template: >-
+      {% set s = states('sensor.ckw_zweitteuerstes_zeitfenster_von_2h') %}
+      {% set teile = s.split(' · ') %}
+      {% if teile | count >= 2 %}
+        {% set startzeit = teile[1].split('–')[0] %}
+        {{ now().strftime('%Y-%m-%d %H:%M') == teile[0] ~ ' ' ~ startzeit }}
+      {% else %}
+        false
+      {% endif %}
+conditions: []
+actions:
+  - action: notify.send_message
+    target:
+      entity_id: notify.deine_e_mail_benachrichtigung
+    data:
+      title: >-
+        {% if trigger.id == 'teuerstes' %}
+          Teuerstes CKW-Zeitfenster beginnt
+        {% else %}
+          Zweitteuerstes CKW-Zeitfenster beginnt
+        {% endif %}
+      message: >-
+        {% if trigger.id == 'teuerstes' %}
+          Das teuerste 2-Stunden-Zeitfenster beginnt jetzt:
+          {{ states('sensor.ckw_teuerstes_zeitfenster_von_2h') }}
+        {% else %}
+          Das zweitteuerste 2-Stunden-Zeitfenster beginnt jetzt:
+          {{ states('sensor.ckw_zweitteuerstes_zeitfenster_von_2h') }}
+        {% endif %}
+mode: single
+```
+
+Füge die Automation im YAML-Editor ein. Wenn du sie direkt als Eintrag in `automations.yaml` speicherst, setze einen Bindestrich vor `alias` und rücke die restlichen Zeilen um zwei Leerzeichen ein. Der E-Mail-Dienst muss in Home Assistant eingerichtet und getestet sein.
 ## Preise nach Mittag automatisch aktualisieren
 
 Die CKW-Preise für den Folgetag werden üblicherweise ungefähr ab 12 Uhr veröffentlicht. Ein manueller Dashboard-Button kann `sensor.ckw_tarifdaten` sofort aktualisieren; seine Konfiguration steht unter [CKW-Preise aktualisieren](dashboard.md#ckw-preise-aktualisieren). Die folgende Automation startet täglich um 12:05 Uhr, aktualisiert den CKW-Sensor und prüft danach, ob Preise für morgen vorhanden sind. Falls nicht, versucht sie es bis zu acht weitere Male im Abstand von 15 Minuten. Sobald mindestens ein Preis für morgen eintrifft, endet die Wiederholung.
