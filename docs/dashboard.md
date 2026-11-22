@@ -2,6 +2,27 @@
 
 Diese Datei beschreibt das aktuelle CKW-Dashboard und enthält die YAML-Konfigurationen der dargestellten Karten. Die Beispiele verwenden die unten aufgeführten Entity-IDs. Wenn Home Assistant bei dir andere IDs vergeben hat, ersetze sie durch die tatsächlichen IDs deiner Entitäten.
 
+Die Einrichtung der Sensoren steht in der [Einrichtungsanleitung](anleitung.md); die beiden Auto-Laden-Helfer sind in [Auto-Laden-Zeitfenster](auto-laden.md) beschrieben. Diese Datei ist die zentrale Referenz für sämtliche Dashboard-Karten und ihre Anordnung.
+
+## Inhaltsverzeichnis
+
+- [Dashboard-Aufbau und Vorschau](#dashboard-aufbau)
+- [Verwendete Entitäten](#verwendete-entitäten)
+- [Karten im Bereich Strompreise](#karten-für-den-bereich-strompreise)
+  - [Aktueller Preis](#aktueller-preis)
+  - [Auto-Laden-Zeitfenster](#auto-laden-zeitfenster)
+  - [Zeitfenster heute](#vier-zeitfenster-für-heute)
+  - [Preisempfehlung heute](#preisempfehlung-für-heute)
+  - [Zeitfenster morgen](#vier-zeitfenster-für-morgen)
+  - [Preisempfehlung morgen](#preisempfehlung-für-morgen)
+  - [Preisverlauf](#preisverlauf)
+- [Karten für dynamische Strompreise](#karten-für-den-bereich-dynamische-strompreise)
+  - [Preise heute](#ckw-preise-heute)
+  - [Preise morgen](#ckw-preise-morgen)
+  - [Manuell aktualisieren](#ckw-preise-aktualisieren)
+- [Karten anordnen](#karten-im-dashboard-anordnen)
+- [Hinweise](#hinweise)
+
 ## Dashboard-Aufbau
 
 Das Dashboard ist in zwei Bereiche gegliedert:
@@ -11,7 +32,7 @@ Das Dashboard ist in zwei Bereiche gegliedert:
 1. Aktueller CKW-Strompreis und die 5-Stunden-Fenster **Auto laden** und **Auto laden gesperrt**.
 2. Abschnitt **Heute** mit den vier heutigen 2-Stunden-Zeitfenstern und der heutigen Preisempfehlung.
 3. Abschnitt **Morgen** mit den vier morgigen 2-Stunden-Zeitfenstern und der morgigen Preisempfehlung.
-4. Verlaufskarten für den aktuellen Preis und die nächsten 24 Stunden.
+4. Eine Verlaufskarte für den aktuellen Preis. Die Vorschau zeigt zusätzlich eine 24-Stunden-Preisansicht.
 
 ### Dynamische Strompreise
 
@@ -35,6 +56,15 @@ Die Vorschau zeigt Beispielwerte vom 22. November 2026. Preise und Zeitfenster �
 |---|---|
 | CKW Tarifdaten (REST) | `sensor.ckw_tarifdaten` |
 | CKW aktueller Strompreis | `sensor.ckw_aktueller_preis` |
+
+### Auto-Laden-Zeitfenster
+
+| Anzeige | Entity-ID |
+|---|---|
+| Auto laden | `sensor.auto_laden` |
+| Auto laden gesperrt | `sensor.auto_laden_gesperrt` |
+
+Die Template-Helfer werden in der [Auto-Laden-Anleitung](auto-laden.md) erstellt.
 
 ### Zeitfenster heute
 
@@ -64,6 +94,19 @@ Die Vorschau zeigt Beispielwerte vom 22. November 2026. Preise und Zeitfenster �
 type: entity
 entity: sensor.ckw_aktueller_preis
 name: CKW aktueller Strompreis
+```
+
+### Auto-Laden-Zeitfenster
+
+```yaml
+type: entities
+title: Auto-Laden
+show_header_toggle: false
+entities:
+  - entity: sensor.auto_laden
+    name: Auto laden
+  - entity: sensor.auto_laden_gesperrt
+    name: Auto laden gesperrt
 ```
 
 ### Vier Zeitfenster für heute
@@ -152,6 +195,19 @@ content: |
   {% endif %}
 ```
 
+### Preisverlauf
+
+Diese Verlaufskarte zeigt den aktuellen CKW-Preis über die letzten 24 Stunden. Weitere Optionen stehen in der [offiziellen Home-Assistant-Dokumentation](https://www.home-assistant.io/dashboards/history-graph/).
+
+```yaml
+type: history-graph
+title: Verlauf
+hours_to_show: 24
+entities:
+  - entity: sensor.ckw_aktueller_preis
+    name: CKW aktueller Preis
+```
+
 ## Karten für den Bereich «Dynamische Strompreise»
 
 Die Tabellen lesen die `prices`-Daten direkt aus dem REST-Sensor. Preise werden mit zwei Dezimalstellen in Rp./kWh ausgegeben.
@@ -223,7 +279,7 @@ tap_action:
 ## Karten im Dashboard anordnen
 
 1. Dashboard bearbeiten und zwei breite Bereiche oder Spalten anlegen: **Strompreise** und **Dynamische Strompreise**.
-2. Im Bereich **Strompreise** die Karten in dieser Reihenfolge hinzufügen: aktueller Preis, heutige Zeitfenster, heutige Empfehlung, morgige Zeitfenster, morgige Empfehlung.
+2. Im Bereich **Strompreise** die Karten in dieser Reihenfolge hinzufügen: aktueller Preis, Auto-Laden-Zeitfenster, heutige Zeitfenster und Empfehlung, morgige Zeitfenster und Empfehlung, Preisverlauf.
 3. Im Bereich **Dynamische Strompreise** die beiden Markdown-Tabellen nebeneinander platzieren und den Aktualisierungsbutton rechts daneben setzen.
 4. Für jede Karte den vollständigen YAML-Block in den YAML-Editor der Karte einfügen.
 
@@ -235,3 +291,4 @@ Home Assistant kann bei kleinen Displays oder schmalen Abschnitten Karten untere
 - CKW muss die Preise für morgen bereits veröffentlicht haben. Bis dahin können morgige Tabelle und Morgen-Sensoren leer oder nicht verfügbar sein.
 - Die beiden Preisempfehlungskarten greifen auf die vier jeweiligen Zeitfenster-Sensoren zu. Wenn einer davon `unknown` oder `unavailable` ist, zeigt die Karte einen Verfügbarkeitshinweis.
 - Der Button aktualisiert nur den REST-Sensor `sensor.ckw_tarifdaten`; die Preise werden nur sichtbar, wenn die API sie zurückliefert.
+- Die Vorschau zeigt zusätzlich eine 24-Stunden-Preisansicht. Dafür ist in der jeweiligen Home-Assistant-Konfiguration eine passende Preisreihen-Entität nötig; dieses Projekt stellt dafür keinen separaten Sensor bereit.

@@ -9,6 +9,14 @@ Ein 5-Stunden-Fenster besteht aus 20 aufeinanderfolgenden CKW-Viertelstundenwert
 
 Beide Sensoren sind Template-Sensor-Helfer. Erstelle sie unter **Einstellungen → Geräte & Dienste → Helfer → Helfer erstellen → Template → Sensor**. Füge jeweils nur den Jinja-Code ins Feld **Zustand** ein. Lasse Geräteklasse und Einheit leer, da der Zustand den Zeitraum und den Durchschnittspreis als Text enthält. Prüfe die erzeugten Entity-IDs in Home Assistant und passe die Referenz im zweiten Sensor bei Bedarf an.
 
+Das Dashboard-Beispiel für diese beiden Sensoren steht in der zentralen [Dashboard-Dokumentation](dashboard.md#karten-für-den-bereich-strompreise). Die allgemeine Einrichtung ist in der [Einrichtungsanleitung](anleitung.md) beschrieben.
+
+## Inhaltsverzeichnis
+
+- [Günstigstes 5-Stunden-Fenster](#günstigstes-5-stunden-fenster)
+- [Teuerstes nicht überlappendes 5-Stunden-Fenster](#teuerstes-nicht-überlappendes-5-stunden-fenster)
+- [Dashboard-Karten und allgemeine Einrichtung](dashboard.md)
+
 ## Günstigstes 5-Stunden-Fenster
 
 Name: `Auto laden`
