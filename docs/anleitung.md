@@ -7,7 +7,7 @@ Dieses unabhängige Community-Projekt steht in keiner Verbindung zu CKW oder zum
 ## Inhaltsverzeichnis
 
 - [Voraussetzungen](#voraussetzungen)
-- [CKW-Preise abrufen](#1-ckw-preise-abrufen)
+- [CKW-Package einbinden](#1-ckw-package-einbinden)
 - [Aktuellen Preis als Helfer erstellen](#2-template-sensor-für-den-aktuellen-preis)
 - [Acht 2-Stunden-Zeitfenster](#3-acht-zeitfenster-sensoren-erstellen)
 - [Preisempfehlung für heute und morgen](#4-preisempfehlung-für-heute-und-morgen)
@@ -22,37 +22,23 @@ CKW veröffentlicht Viertelstundenwerte. Ein vollständiger Tag umfasst 96 Werte
 
 ## Voraussetzungen
 
-- Eine Home-Assistant-Installation mit der integrierten [RESTful-Integration](https://www.home-assistant.io/integrations/rest/).
 - Ein CKW-Tarif und ein Tarifname, die zu deinem Vertrag passen. `home_dynamic` gilt bei einem Jahresverbrauch unter 50 MWh; `business_dynamic` bei einem Jahresverbrauch über 50 MWh.
 - Ein Datei-Editor oder eine andere Möglichkeit, `configuration.yaml` zu bearbeiten.
 
-Die Beispiele verwenden `sensor.ckw_tarifdaten` als Entitäts-ID des REST-Sensors. Die Konfiguration unten verwendet den Namen „CKW Tarifdaten“. Falls Home Assistant bei dir eine andere ID erstellt, ersetze sie in den Vorlagen und Karten.
+Das CKW-Package erstellt `sensor.ckw_tarifdaten`. Die übrigen Vorlagen und Karten verwenden diese Entität als Datenquelle.
 
-## 1. CKW-Preise abrufen
+## 1. CKW-Package einbinden
 
-Füge diesen Abschnitt unter dem obersten Schlüssel `rest:` in `configuration.yaml` ein. Wenn bereits ein Abschnitt `rest:` existiert, ergänze dort den Listeneintrag, anstatt einen zweiten obersten `rest:`-Schlüssel anzulegen.
+Das einzige Konfigurationsbeispiel für den CKW-Datenabruf ist `packages/ckw_tarife.yaml`. Kopiere die Datei in den Ordner `packages/` deiner Home-Assistant-Konfiguration. Stelle sicher, dass `configuration.yaml` diesen Ordner einbindet:
 
 ```yaml
-rest:
-  - resource: https://e-ckw-public-data.de-c1.eu1.cloudhub.io/api/v1/netzinformationen/energie/dynamische-preise
-    scan_interval: 21600
-    params:
-      tariff_name: home_dynamic
-      tariff_type: integrated
-      start_timestamp: "{{ today_at('00:00').isoformat() }}"
-      end_timestamp: "{{ (today_at('00:00') + timedelta(days=2)).isoformat() }}"
-    sensor:
-      - name: "CKW Tarifdaten"
-        unique_id: ckw_tarifdaten
-        value_template: "OK"
-        json_attributes:
-          - publication_timestamp
-          - prices
+homeassistant:
+  packages: !include_dir_named packages
 ```
 
-Die Abfrage umfasst heute und morgen: von heute um Mitternacht bis Mitternacht übermorgen. Die Zeitstempel verwenden die in Home Assistant eingestellte Zeitzone. Das Beispiel fragt die API alle sechs Stunden ab; passe `scan_interval` bei Bedarf an.
+Wenn `homeassistant:` in deiner `configuration.yaml` bereits vorhanden ist, ergänze dort nur den Eintrag `packages:`.
 
-Prüfe nach dem Bearbeiten die Home-Assistant-Konfiguration und starte Home Assistant neu oder lade die betreffende Konfiguration neu. Kontrolliere den Sensor unter **Entwicklerwerkzeuge → Zustände**. Sein Zustand ist `OK`; die Tarifdaten stehen in den Attributen `publication_timestamp` und `prices`.
+Das Package fragt die CKW-Preise für heute und morgen ab. Prüfe nach dem Einbinden, dass `sensor.ckw_tarifdaten` vorhanden ist und die Attribute `publication_timestamp` und `prices` enthält. Der Sensorzustand `OK` bestätigt, dass die Entität geladen wurde.
 
 ## 2. Template-Sensor für den aktuellen Preis
 
@@ -253,7 +239,7 @@ Ein numerischer Zustandsauslöser reagiert, wenn der Sensor die Schwelle übersc
 
 ## Preise nach Mittag automatisch aktualisieren
 
-Die CKW-Preise für den Folgetag werden üblicherweise ungefähr ab 12 Uhr veröffentlicht. Ein manueller Dashboard-Button kann `sensor.ckw_tarifdaten` sofort aktualisieren; seine Konfiguration steht in der [Dashboard-Anleitung](dashboard.md#ckw-preise-aktualisieren). Die folgende Automation startet täglich um 12:05 Uhr, aktualisiert den REST-Sensor und prüft danach, ob Preise für morgen vorhanden sind. Falls nicht, versucht sie es bis zu acht weitere Male im Abstand von 15 Minuten. Sobald mindestens ein Preis für morgen eintrifft, endet die Wiederholung.
+Die CKW-Preise für den Folgetag werden üblicherweise ungefähr ab 12 Uhr veröffentlicht. Ein manueller Dashboard-Button kann `sensor.ckw_tarifdaten` sofort aktualisieren; seine Konfiguration steht in der [Dashboard-Anleitung](dashboard.md#ckw-preise-aktualisieren). Die folgende Automation startet täglich um 12:05 Uhr, aktualisiert den CKW-Sensor und prüft danach, ob Preise für morgen vorhanden sind. Falls nicht, versucht sie es bis zu acht weitere Male im Abstand von 15 Minuten. Sobald mindestens ein Preis für morgen eintrifft, endet die Wiederholung.
 
 Füge den Eintrag in `automations.yaml` ein. Die Datei wird in diesem Beispiel über `automation: !include automations.yaml` in `configuration.yaml` eingebunden. Ersetze `sensor.ckw_tarifdaten`, falls deine Installation eine andere Entity-ID verwendet.
 
@@ -299,18 +285,16 @@ Die Wiederholung ist auf acht zusätzliche Abrufe begrenzt. Die manuelle Schaltf
 
 ## Fehlerbehebung
 
-- **Der REST-Sensor zeigt `OK`:** Das ist erwartungsgemäss. Die Preise sind Attribute des Sensors, nicht sein Zustand.
+- **Der CKW-Sensor zeigt `OK`:** Das ist erwartungsgemäss. Die Preise sind Attribute des Sensors, nicht sein Zustand.
 - **Die Entität erscheint nicht auf der Zuständeseite:** Verwende in Home Assistant den Entitätsfilter und nicht die Seitensuche des Browsers. Suche nach dem Anzeigenamen des Sensors oder nach `ckw`.
 - **Die Karte für morgen ist leer:** Prüfe den letzten `start_timestamp` im Attribut `prices` sowie `publication_timestamp`. CKW veröffentlicht die Preise für den Folgetag ungefähr um die Mittagszeit.
-- **Es erscheinen nur die heutigen Preise:** Kontrolliere, ob die Abfrage wie oben sowohl `start_timestamp` als auch `end_timestamp` enthält. Aktualisiere den Sensor erneut, nachdem CKW das nächste Tagesprofil veröffentlicht hat.
+- **Es erscheinen nur die heutigen Preise:** Prüfe im CKW-Package, ob die Abfrage `start_timestamp` und `end_timestamp` für heute und morgen enthält. Aktualisiere den Sensor erneut, nachdem CKW das nächste Tagesprofil veröffentlicht hat.
 - **Dashboard-Karte oder Anordnung stimmt nicht:** Siehe die zentrale [Dashboard-Anleitung](dashboard.md).
 - **Die Automation wird nicht ausgelöst:** Prüfe die tatsächliche Entitäts-ID des aktuellen Preis-Sensors und ob sein Zustand numerisch ist, zum Beispiel `0.1583`.
 
 ## Quellen
 
 - [CKW: Technische Informationen zum dynamischen Tarif und zur API](https://www.ckw.ch/energie/strom/dynamischer-tarif-fuer-privatkunden-und-unternehmen/dynamischer-tarif-technische-voraussetzungen)
-- [Home Assistant: RESTful-Integration](https://www.home-assistant.io/integrations/rest/)
-- [Home Assistant: RESTful Sensor](https://www.home-assistant.io/integrations/sensor.rest/)
 
 ## Mitwirken
 
