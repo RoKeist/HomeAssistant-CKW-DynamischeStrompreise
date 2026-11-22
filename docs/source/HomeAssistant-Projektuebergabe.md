@@ -49,7 +49,7 @@ Es wurden E-Mail-Benachrichtigungen für den Beginn des günstigsten, zweitgüns
 
 ## Dateien in diesem Paket
 
-- `README.md`: Anleitung und Übersicht der Helfer/Sensoren
+- `historische-anleitung.md`: archivierte Anleitung und Übersicht der Helfer/Sensoren
 - `dashboard.md`: Erklärung und YAML-Beispiele für das Dashboard
 - `configuration.yaml.example`: REST-Datenquelle und Beispielkonfiguration
 - `dashboard-preview.png`: Dashboard-Momentaufnahme
