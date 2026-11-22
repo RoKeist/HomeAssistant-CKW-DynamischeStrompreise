@@ -13,10 +13,13 @@ Für jede Empfehlung einen weiteren Template-Sensor-Helfer erstellen, zum Beispi
 
 Für die Empfehlung **heute** `tage_voraus` auf `0` setzen. Für die Empfehlung **morgen** auf `1` setzen.
 
+Die Tageszuordnung verwendet den Starttag eines Fensters. Ein Fenster, das exakt um `00:00:00` des Folgetags endet, gehört noch zum ausgewählten Tag. Fenster, die nach Mitternacht enden, werden ausgeschlossen. Wenn du den Helfer bereits eingerichtet hast, ersetze seinen bisherigen Zustandscode durch die aktualisierte Vorlage unten.
+
 ```jinja
 {% set tage_voraus = 0 %}
 {% set p = state_attr('sensor.ckw_tarifdaten', 'prices') or [] %}
 {% set zieltag = (now() + timedelta(days=tage_voraus)).strftime('%Y-%m-%d') %}
+{% set zieltag_morgen = (now() + timedelta(days=tage_voraus + 1)).strftime('%Y-%m-%d') %}
 {% set ns = namespace(fenster=[]) %}
 
 {% for i in range(0, (p | count) - 7) %}
@@ -32,7 +35,9 @@ Für die Empfehlung **heute** `tage_voraus` auf `0` setzen. Für die Empfehlung 
   {% if block | count == 8
         and werte.liste | count == 8
         and block[0].start_timestamp[:10] == zieltag
-        and block[7].end_timestamp[:10] == zieltag %}
+        and (block[7].end_timestamp[:10] == zieltag
+             or (block[7].end_timestamp[:10] == zieltag_morgen
+                 and block[7].end_timestamp[11:19] == '00:00:00')) %}
     {% set ns.fenster = ns.fenster + [{
       'start': i,
       'preis': (werte.liste | sum) / 8
