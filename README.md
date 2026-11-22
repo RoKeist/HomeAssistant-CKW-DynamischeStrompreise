@@ -5,7 +5,7 @@ Dieses öffentliche Teilprojekt ruft dynamische CKW-Tarifdaten ab und zeigt Beis
 ## Inhalt
 
 - `packages/ckw_tarife.yaml`: Home Assistant Package mit der CKW-REST-Datenquelle
-- `docs/anleitung.md`: Sensoren, Auswertung, Empfehlungen und Benachrichtigungen
+- `docs/anleitung.md`: Sensoren, Auswertung, Empfehlungen, Benachrichtigungen und automatische Aktualisierung
 - `docs/auto-laden.md`: günstigstes und teuerstes nicht überlappendes 5-Stunden-Fenster fürs Elektroauto
 - `docs/dashboard.md`: Dashboard-Karten und Anordnung
 - `docs/examples/rest-sensor.yaml`: eigenständiges REST-Beispiel
