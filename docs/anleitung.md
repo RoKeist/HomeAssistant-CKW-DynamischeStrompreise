@@ -10,6 +10,7 @@ Dieses unabhängige Community-Projekt steht in keiner Verbindung zu CKW oder zum
 - Zwei Markdown-Karten fürs Dashboard: Preise von heute und morgen.
 - Ein Template-Sensor für den Preis des aktuell gültigen 15-Minuten-Intervalls.
 - Ein Automationsbeispiel, das bei Unterschreiten eines Preisgrenzwerts ausgelöst wird.
+- Eine Automation, die CKW-Preise nach Mittag abruft und bis zur Veröffentlichung der morgigen Preise erneut prüft.
 
 CKW veröffentlicht Viertelstundenwerte. Ein vollständiger Tag umfasst 96 Werte. Das Tarifprofil für den Folgetag ist ungefähr ab 12 Uhr mittags verfügbar. Der API-Wert `integrated` wird in CHF/kWh angegeben und entspricht nicht zwingend dem vollständigen Rechnungsbetrag: Steuern, Messentgelte, Konzessionsabgaben und Leistungspreise können darin fehlen.
 
@@ -144,6 +145,51 @@ mode: single
 
 Ein numerischer Zustandsauslöser reagiert, wenn der Sensor die Schwelle überschreitet. Soll eine Aktion in jedem passenden 15-Minuten-Intervall ausgeführt werden, verwende stattdessen einen periodischen Zeitauslöser mit einer separaten Preisbedingung.
 
+## Preise nach Mittag automatisch aktualisieren
+
+Die CKW-Preise für den Folgetag werden üblicherweise ungefähr ab 12 Uhr veröffentlicht. Ein manueller Dashboard-Button kann `sensor.ckw_tarifdaten` sofort aktualisieren; seine Konfiguration steht in der [Dashboard-Anleitung](dashboard.md#ckw-preise-aktualisieren). Die folgende Automation startet täglich um 12:05 Uhr, aktualisiert den REST-Sensor und prüft danach, ob Preise für morgen vorhanden sind. Falls nicht, versucht sie es bis zu acht weitere Male im Abstand von 15 Minuten. Sobald mindestens ein Preis für morgen eintrifft, endet die Wiederholung.
+
+Füge den Eintrag in `automations.yaml` ein. Die Datei wird in diesem Beispiel über `automation: !include automations.yaml` in `configuration.yaml` eingebunden. Ersetze `sensor.ckw_tarifdaten`, falls deine Installation eine andere Entity-ID verwendet.
+
+```yaml
+- alias: CKW-Preise nach Mittag aktualisieren
+  description: Aktualisiert die Preise und wiederholt den Abruf, bis CKW Preise für morgen liefert.
+  triggers:
+    - trigger: time
+      at: "12:05:00"
+  actions:
+    - action: homeassistant.update_entity
+      target:
+        entity_id: sensor.ckw_tarifdaten
+
+    - delay: "00:02:00"
+
+    - repeat:
+        while:
+          - condition: template
+            value_template: >-
+              {% set morgen = (today_at('00:00') + timedelta(days=1)).strftime('%Y-%m-%d') %}
+              {% set prices = state_attr('sensor.ckw_tarifdaten', 'prices') or [] %}
+              {% set ns = namespace(found=false) %}
+              {% for p in prices %}
+                {% if p.start_timestamp is defined and p.start_timestamp[:10] == morgen %}
+                  {% set ns.found = true %}
+                {% endif %}
+              {% endfor %}
+              {{ not ns.found and repeat.index <= 8 }}
+        sequence:
+          - delay: "00:15:00"
+          - action: homeassistant.update_entity
+            target:
+              entity_id: sensor.ckw_tarifdaten
+          - delay: "00:02:00"
+
+  mode: single
+```
+
+Der führende Bindestrich vor `alias` ist erforderlich, wenn du den Code als neuen Listeneintrag in `automations.yaml` einfügst. Wenn du im YAML-Editor eine einzelne Automation bearbeitest, entferne diesen ersten Bindestrich. Eine von Home Assistant verwaltete Automation, die nicht in `automations.yaml` liegt, lässt sich gegebenenfalls nur im grafischen Editor ändern.
+
+Die Wiederholung ist auf acht zusätzliche Abrufe begrenzt. Die manuelle Schaltfläche bleibt als Möglichkeit für einen sofortigen Abruf bestehen. Die Aktion `homeassistant.update_entity` löst eine Aktualisierung ausserhalb des normalen `scan_interval` aus.
 ## Fehlerbehebung
 
 - **Der REST-Sensor zeigt `OK`:** Das ist erwartungsgemäss. Die Preise sind Attribute des Sensors, nicht sein Zustand.
