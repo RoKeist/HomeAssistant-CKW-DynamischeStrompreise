@@ -8,9 +8,10 @@ Das Dashboard ist in zwei Bereiche gegliedert:
 
 ### Strompreise
 
-1. Aktueller CKW-Strompreis.
+1. Aktueller CKW-Strompreis und die 5-Stunden-Fenster **Auto laden** und **Auto laden gesperrt**.
 2. Abschnitt **Heute** mit den vier heutigen 2-Stunden-Zeitfenstern und der heutigen Preisempfehlung.
 3. Abschnitt **Morgen** mit den vier morgigen 2-Stunden-Zeitfenstern und der morgigen Preisempfehlung.
+4. Verlaufskarten für den aktuellen Preis und die nächsten 24 Stunden.
 
 ### Dynamische Strompreise
 
@@ -19,6 +20,12 @@ Das Dashboard ist in zwei Bereiche gegliedert:
 3. Button, der den REST-Sensor sofort erneut abfragt.
 
 Für ein Layout wie im Screenshot platziere die Karten in einer breiten Dashboard-Ansicht: links den Bereich **Strompreise**, rechts **Dynamische Strompreise** mit den beiden Tabellen nebeneinander und dem Aktualisierungsbutton daneben. In der mobilen Ansicht können Karten untereinander angeordnet werden.
+
+### Aktuelle Dashboard-Vorschau
+
+![CKW-Dashboard mit Ladezeitfenstern, Preisempfehlungen, Preisverläufen und Viertelstundentabellen](assets/dashboard-preview.png)
+
+Die Vorschau zeigt Beispielwerte vom 22. November 2026. Preise und Zeitfenster ändern sich mit den veröffentlichten CKW-Tarifdaten.
 
 ## Verwendete Entitäten
 
