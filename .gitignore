@@ -1,0 +1,26 @@
+# Home Assistant local secrets (never commit this file)
+secrets.yaml
+
+# Home Assistant runtime state and local data
+.storage/
+home-assistant_v2.db
+home-assistant_v2.db-shm
+home-assistant_v2.db-wal
+*.db
+*.db-shm
+*.db-wal
+home-assistant.log*
+*.log
+
+# Backups and local exports
+backups/
+*.tar
+*.tar.gz
+*.zip
+!docs/source/chat-anhange-und-screenshots.zip
+
+# Local OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
