@@ -2,6 +2,8 @@
 
 Diese Anleitung richtet die acht Template-Sensor-Helfer für die günstigsten und teuersten 2-Stunden-Zeitfenster von heute und morgen ein. Voraussetzung ist das in der [Anleitung](anleitung.md#1-ckw-tarifdaten-package-einbinden) beschriebene CKW-Tarifdaten-Package mit `sensor.ckw_tarifdaten`.
 
+Die Tageszuordnung verwendet den Starttag eines Fensters. Ein Fenster, das exakt um `00:00:00` des Folgetags endet, gehört noch zum ausgewählten Tag. Fenster, die nach Mitternacht enden, werden ausgeschlossen. So kann ein Sensor für heute kein Zeitfenster mit dem Datum von morgen ausgeben. Wenn du die Helfer bereits eingerichtet hast, ersetze ihren bisherigen Zustandscode durch die aktualisierte Vorlage unten.
+
 ## Inhaltsverzeichnis
 
 - [Acht Zeitfenster-Sensoren erstellen](#acht-zeitfenster-sensoren-erstellen)
@@ -31,6 +33,7 @@ Für jeden Sensor: Code kopieren, die drei Parameterzeilen oben setzen, den Code
 
 {% set p = state_attr('sensor.ckw_tarifdaten', 'prices') or [] %}
 {% set zieltag = (now() + timedelta(days=tage_voraus)).strftime('%Y-%m-%d') %}
+{% set zieltag_morgen = (now() + timedelta(days=tage_voraus + 1)).strftime('%Y-%m-%d') %}
 {% set ns = namespace(fenster=[]) %}
 
 {# Acht Viertelstundenpreise ergeben ein 2-Stunden-Fenster #}
@@ -47,7 +50,9 @@ Für jeden Sensor: Code kopieren, die drei Parameterzeilen oben setzen, den Code
   {% if block | count == 8
         and werte.liste | count == 8
         and block[0].start_timestamp[:10] == zieltag
-        and block[7].end_timestamp[:10] == zieltag %}
+        and (block[7].end_timestamp[:10] == zieltag
+             or (block[7].end_timestamp[:10] == zieltag_morgen
+                 and block[7].end_timestamp[11:19] == '00:00:00')) %}
     {% set ns.fenster = ns.fenster + [{
       'start': i,
       'preis': (werte.liste | sum) / 8
