@@ -9,6 +9,8 @@ Die Dashboard-Vorschau zeigt Beispielwerte vom 22. November 2026. Preise und Zei
 ## Inhaltsverzeichnis
 
 - [Anleitung](docs/anleitung.md)
+- [2-Stunden-Zeitfenster](docs/zeitfenster-2h.md)
+- [Preisempfehlungen für heute und morgen](docs/preisempfehlungen.md)
 - [Auto-Laden-Zeitfenster](docs/auto-laden.md)
 - [CKW-Dashboard für Home Assistant](docs/dashboard.md)
 

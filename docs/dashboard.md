@@ -2,7 +2,7 @@
 
 Diese Datei beschreibt das aktuelle CKW-Dashboard und enthält die YAML-Konfigurationen der dargestellten Karten. Die Beispiele verwenden die unten aufgeführten Entity-IDs. Wenn Home Assistant bei dir andere IDs vergeben hat, ersetze sie durch die tatsächlichen IDs deiner Entitäten.
 
-Zum Einstieg: [1. CKW-Tarifdaten-Package einbinden](anleitung.md#1-ckw-tarifdaten-package-einbinden) und Sensoren einrichten. Die Auto-Laden-Helfer stehen in [Auto-Laden-Zeitfenster](auto-laden.md). Diese Datei ist die zentrale Referenz für sämtliche Dashboard-Karten und ihre Anordnung.
+Zum Einstieg: [Anleitung](anleitung.md#ckw-dynamischer-tarif-fuer-home-assistant) und CKW-Tarifdaten-Package einrichten. Die acht 2-Stunden-Helfer stehen in [2-Stunden-Zeitfenster](zeitfenster-2h.md), die beiden Empfehlungen in [Preisempfehlungen für heute und morgen](preisempfehlungen.md), die Auto-Laden-Helfer in [Auto-Laden-Zeitfenster](auto-laden.md). Diese Datei ist die zentrale Referenz für sämtliche Dashboard-Karten und ihre Anordnung.
 
 ## Inhaltsverzeichnis
 
@@ -288,8 +288,8 @@ Home Assistant kann bei kleinen Displays oder schmalen Abschnitten Karten untere
 
 ## Hinweise
 
-- Die Zeitfenster-Sensoren müssen zuerst als Template-Sensor-Helfer eingerichtet sein. Die Entity-IDs in diesem Dokument entsprechen dem hier verwendeten Beispiel.
+- Die acht 2-Stunden-Sensoren müssen zuerst als Template-Sensor-Helfer eingerichtet sein. Siehe [Anleitung zu 2-Stunden-Zeitfenstern](zeitfenster-2h.md). Die Entity-IDs in diesem Dokument entsprechen dem hier verwendeten Beispiel.
 - CKW muss die Preise für morgen bereits veröffentlicht haben. Bis dahin können morgige Tabelle und Morgen-Sensoren leer oder nicht verfügbar sein.
-- Die beiden Preisempfehlungskarten greifen auf die vier jeweiligen Zeitfenster-Sensoren zu. Wenn einer davon `unknown` oder `unavailable` ist, zeigt die Karte einen Verfügbarkeitshinweis.
+- Die beiden Preisempfehlungskarten greifen auf die vier jeweiligen Zeitfenster-Sensoren zu. Die dazugehörigen Empfehlungssensoren sind in [Preisempfehlungen für heute und morgen](preisempfehlungen.md) beschrieben. Wenn einer der Zeitfenster-Sensoren `unknown` oder `unavailable` ist, zeigt die Karte einen Verfügbarkeitshinweis.
 - Der Button aktualisiert nur `sensor.ckw_tarifdaten`; Preise werden angezeigt, wenn CKW sie zurückliefert.
 - Die Vorschau zeigt zusätzlich eine 24-Stunden-Preisansicht. Dafür ist in der jeweiligen Home-Assistant-Konfiguration eine passende Preisreihen-Entität nötig; dieses Projekt stellt dafür keinen separaten Sensor bereit.
