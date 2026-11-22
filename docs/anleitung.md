@@ -4,13 +4,19 @@ Community-Beispiele, um die öffentliche CKW-API für dynamische Tarife in Home 
 
 Dieses unabhängige Community-Projekt steht in keiner Verbindung zu CKW oder zum Home-Assistant-Projekt und wird von diesen weder unterstützt noch offiziell bestätigt.
 
-## Inhalt
+## Inhaltsverzeichnis
 
-- Ein REST-Sensor für Home Assistant, der CKW-Tarifdaten abruft.
-- Zwei Markdown-Karten fürs Dashboard: Preise von heute und morgen.
-- Ein Template-Sensor für den Preis des aktuell gültigen 15-Minuten-Intervalls.
-- Ein Automationsbeispiel, das bei Unterschreiten eines Preisgrenzwerts ausgelöst wird.
-- Eine Automation, die CKW-Preise nach Mittag abruft und bis zur Veröffentlichung der morgigen Preise erneut prüft.
+- [Voraussetzungen](#voraussetzungen)
+- [CKW-Preise abrufen](#1-ckw-preise-abrufen)
+- [Aktuellen Preis als Helfer erstellen](#2-template-sensor-für-den-aktuellen-preis)
+- [Acht 2-Stunden-Zeitfenster](#3-acht-zeitfenster-sensoren-erstellen)
+- [Preisempfehlung für heute und morgen](#4-preisempfehlung-für-heute-und-morgen)
+- [Automationen](#5-automationsbeispiel)
+- [Preise nach Mittag aktualisieren](#preise-nach-mittag-automatisch-aktualisieren)
+- [Fehlerbehebung](#fehlerbehebung)
+- [Quellen](#quellen) · [Mitwirken](#mitwirken)
+
+**Weitere Anleitungen:** [Dashboard-Karten und Anordnung](dashboard.md) · [Auto-Laden-Zeitfenster](auto-laden.md)
 
 CKW veröffentlicht Viertelstundenwerte. Ein vollständiger Tag umfasst 96 Werte. Das Tarifprofil für den Folgetag ist ungefähr ab 12 Uhr mittags verfügbar. Der API-Wert `integrated` wird in CHF/kWh angegeben und entspricht nicht zwingend dem vollständigen Rechnungsbetrag: Steuern, Messentgelte, Konzessionsabgaben und Leistungspreise können darin fehlen.
 
@@ -48,61 +54,7 @@ Die Abfrage umfasst heute und morgen: von heute um Mitternacht bis Mitternacht �
 
 Prüfe nach dem Bearbeiten die Home-Assistant-Konfiguration und starte Home Assistant neu oder lade die betreffende Konfiguration neu. Kontrolliere den Sensor unter **Entwicklerwerkzeuge → Zustände**. Sein Zustand ist `OK`; die Tarifdaten stehen in den Attributen `publication_timestamp` und `prices`.
 
-## 2. Dashboard-Karten für heute und morgen
-
-Erstelle einen Dashboard-Abschnitt mit zwei Spalten (oder einen ausreichend breiten Abschnitt). Füge in jede Spalte eine **Manuelle** Karte ein. Füge den vollständigen YAML-Block jeweils im YAML-Editor der Karte ein.
-
-Auf schmalen Bildschirmen kann Home Assistant die Karten untereinander anordnen.
-
-### Preise von heute
-
-```yaml
-type: markdown
-content: |
-  {% set tag_dt = now() %}
-  {% set tag = tag_dt.strftime('%Y-%m-%d') %}
-  {% set prices = state_attr('sensor.ckw_tarifdaten', 'prices') or [] %}
-  {% set ns = namespace(rows=[]) %}
-  {% for p in prices %}
-    {% if p.start_timestamp[:10] == tag %}
-      {% set interval = p.start_timestamp[11:16] ~ '–' ~ p.end_timestamp[11:16] %}
-      {% set rp = (p.integrated[0].value * 100) | round(2) %}
-      {% set ns.rows = ns.rows + ['| ' ~ interval ~ ' | ' ~ rp|string ~ ' Rp./kWh |'] %}
-    {% endif %}
-  {% endfor %}
-  # CKW-Preise heute · {{ tag_dt.strftime('%d.%m.%Y') }}
-
-  | Zeit | Preis |
-  |:---|---:|
-  {{ ns.rows | join('\n  ') }}
-```
-
-### Preise von morgen
-
-```yaml
-type: markdown
-content: |
-  {% set tag_dt = now() + timedelta(days=1) %}
-  {% set tag = tag_dt.strftime('%Y-%m-%d') %}
-  {% set prices = state_attr('sensor.ckw_tarifdaten', 'prices') or [] %}
-  {% set ns = namespace(rows=[]) %}
-  {% for p in prices %}
-    {% if p.start_timestamp[:10] == tag %}
-      {% set interval = p.start_timestamp[11:16] ~ '–' ~ p.end_timestamp[11:16] %}
-      {% set rp = (p.integrated[0].value * 100) | round(2) %}
-      {% set ns.rows = ns.rows + ['| ' ~ interval ~ ' | ' ~ rp|string ~ ' Rp./kWh |'] %}
-    {% endif %}
-  {% endfor %}
-  # CKW-Preise morgen · {{ tag_dt.strftime('%d.%m.%Y') }}
-
-  | Zeit | Preis |
-  |:---|---:|
-  {{ ns.rows | join('\n  ') }}
-```
-
-Die Karten rechnen den API-Wert von CHF/kWh in Rp./kWh um, indem sie ihn mit 100 multiplizieren. Die Karte für morgen bleibt leer, bis CKW das Profil für den Folgetag veröffentlicht hat und Home Assistant die Daten abruft.
-
-## 3. Template-Sensor für den aktuellen Preis
+## 2. Template-Sensor für den aktuellen Preis
 
 Erstelle einen Template-Sensor-Helfer unter **Einstellungen → Geräte & Dienste → Helfer → Helfer erstellen → Template → Sensor**. Verwende als Namen `CKW aktueller Preis` und füge dieses Template ins Zustandsfeld ein:
 
@@ -122,7 +74,7 @@ Erstelle einen Template-Sensor-Helfer unter **Einstellungen → Geräte & Dienst
 
 Setze die Einheit auf `CHF/kWh`. Lasse die Geräteklasse leer. Falls der Helfer eine Zustandsklasse anbietet, wähle `measurement` (Messwert). Speichere den Helfer und prüfe die von Home Assistant erstellte Entitäts-ID. Die folgenden Beispiele verwenden `sensor.ckw_aktueller_preis`; ersetze sie durch die tatsächlich erstellte ID, falls sie abweicht.
 
-## 4. Acht Zeitfenster-Sensoren erstellen
+## 3. Acht Zeitfenster-Sensoren erstellen
 
 Erstelle acht Template-Sensor-Helfer. Für jeden Helfer verwendest du denselben Zustandscode weiter unten, aber passt die drei Einstellungen am Anfang entsprechend der Tabelle an. Der Code filtert erst auf den Zieldatumsbereich und sortiert danach. Die Sensoren für den zweiten Platz schliessen Zeitfenster aus, die das jeweils beste Zeitfenster überlappen.
 
@@ -203,6 +155,79 @@ Für den gewählten Tag wurden keine passenden CKW-Preise gefunden
 
 Die `sensor.`-IDs entstehen aus den Helfernamen. Home Assistant kann Umlaute umschreiben oder bei Namenskonflikten eine Endung hinzufügen. Prüfe die tatsächlichen IDs unter **Einstellungen → Geräte & Dienste → Entitäten** und verwende genau diese IDs in weiteren Vorlagen.
 
+## 4. Preisempfehlung für heute und morgen
+
+Für jede Empfehlung einen weiteren Template-Sensor-Helfer erstellen, zum Beispiel `CKW Preisempfehlung` und `CKW Preisempfehlung morgen`. Der folgende Code berechnet die vier Zeitfenster direkt aus `sensor.ckw_tarifdaten`; er ist dadurch nicht von den acht separaten Zeitfenster-Helfern abhängig.
+
+Für die Empfehlung **heute** `tage_voraus` auf `0` setzen. Für die Empfehlung **morgen** auf `1` setzen.
+
+```jinja
+{% set tage_voraus = 0 %}
+{% set p = state_attr('sensor.ckw_tarifdaten', 'prices') or [] %}
+{% set zieltag = (now() + timedelta(days=tage_voraus)).strftime('%Y-%m-%d') %}
+{% set ns = namespace(fenster=[]) %}
+
+{% for i in range(0, (p | count) - 7) %}
+  {% set block = p[i:i+8] %}
+  {% set werte = namespace(liste=[]) %}
+
+  {% for q in block %}
+    {% if q.integrated is defined and q.integrated | count > 0 %}
+      {% set werte.liste = werte.liste + [q.integrated[0].value | float(0)] %}
+    {% endif %}
+  {% endfor %}
+
+  {% if block | count == 8
+        and werte.liste | count == 8
+        and block[0].start_timestamp[:10] == zieltag
+        and block[7].end_timestamp[:10] == zieltag %}
+    {% set ns.fenster = ns.fenster + [{
+      'start': i,
+      'preis': (werte.liste | sum) / 8
+    }] %}
+  {% endif %}
+{% endfor %}
+
+{% set billig = ns.fenster | sort(attribute='preis') %}
+{% set teuer = ns.fenster | sort(attribute='preis', reverse=true) %}
+{% set auswahl = namespace(billig_zwei=none, teuer_zwei=none) %}
+
+{% if billig | count > 0 %}
+  {% set bestes = billig[0] %}
+  {% for f in billig %}
+    {% if auswahl.billig_zwei is none
+          and (f.start >= bestes.start + 8
+               or f.start + 8 <= bestes.start) %}
+      {% set auswahl.billig_zwei = f.start %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% if teuer | count > 0 %}
+  {% set bestes = teuer[0] %}
+  {% for f in teuer %}
+    {% if auswahl.teuer_zwei is none
+          and (f.start >= bestes.start + 8
+               or f.start + 8 <= bestes.start) %}
+      {% set auswahl.teuer_zwei = f.start %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% if billig | count > 0
+      and auswahl.billig_zwei is not none
+      and teuer | count > 0
+      and auswahl.teuer_zwei is not none %}
+  {% set b = [billig[0].start, auswahl.billig_zwei] | sort %}
+  {% set t = [teuer[0].start, auswahl.teuer_zwei] | sort %}
+{{ 'Morgen' if tage_voraus == 1 else 'Heute' }} ({{ zieltag }}): Günstig {{ p[b[0]].start_timestamp[11:16] }}–{{ p[b[0]+7].end_timestamp[11:16] }} und {{ p[b[1]].start_timestamp[11:16] }}–{{ p[b[1]+7].end_timestamp[11:16] }}. Teuer {{ p[t[0]].start_timestamp[11:16] }}–{{ p[t[0]+7].end_timestamp[11:16] }} und {{ p[t[1]].start_timestamp[11:16] }}–{{ p[t[1]+7].end_timestamp[11:16] }}.
+{% else %}
+Für {{ 'morgen' if tage_voraus == 1 else 'heute' }} konnten nicht genügend CKW-Preise für vier nicht überlappende Zeitfenster gefunden werden.
+{% endif %}
+```
+
+Der Ausgabezustand ist kurz gehalten. Die lesbare Darstellung der Empfehlungen ist in der zentralen [Dashboard-Dokumentation](dashboard.md) beschrieben.
+
 Für 5-Stunden-Fenster zum Laden eines Elektroautos siehe die separate [Anleitung zu Auto-Laden-Zeitfenstern](auto-laden.md).
 
 ## 5. Automationsbeispiel
@@ -271,14 +296,14 @@ Füge den Eintrag in `automations.yaml` ein. Die Datei wird in diesem Beispiel �
 Der führende Bindestrich vor `alias` ist erforderlich, wenn du den Code als neuen Listeneintrag in `automations.yaml` einfügst. Wenn du im YAML-Editor eine einzelne Automation bearbeitest, entferne diesen ersten Bindestrich. Eine von Home Assistant verwaltete Automation, die nicht in `automations.yaml` liegt, lässt sich gegebenenfalls nur im grafischen Editor ändern.
 
 Die Wiederholung ist auf acht zusätzliche Abrufe begrenzt. Die manuelle Schaltfläche bleibt als Möglichkeit für einen sofortigen Abruf bestehen. Die Aktion `homeassistant.update_entity` löst eine Aktualisierung ausserhalb des normalen `scan_interval` aus.
+
 ## Fehlerbehebung
 
 - **Der REST-Sensor zeigt `OK`:** Das ist erwartungsgemäss. Die Preise sind Attribute des Sensors, nicht sein Zustand.
 - **Die Entität erscheint nicht auf der Zuständeseite:** Verwende in Home Assistant den Entitätsfilter und nicht die Seitensuche des Browsers. Suche nach dem Anzeigenamen des Sensors oder nach `ckw`.
 - **Die Karte für morgen ist leer:** Prüfe den letzten `start_timestamp` im Attribut `prices` sowie `publication_timestamp`. CKW veröffentlicht die Preise für den Folgetag ungefähr um die Mittagszeit.
 - **Es erscheinen nur die heutigen Preise:** Kontrolliere, ob die Abfrage wie oben sowohl `start_timestamp` als auch `end_timestamp` enthält. Aktualisiere den Sensor erneut, nachdem CKW das nächste Tagesprofil veröffentlicht hat.
-- **Die Markdown-Tabelle erscheint als normaler Text:** Füge den vollständigen Block einschliesslich `type: markdown` und `content: |` im YAML-Editor der Karte ein.
-- **Die Karten stehen untereinander:** Ordne beide Karten demselben zweispaltigen Abschnitt zu und prüfe das Dashboard auf einem breiteren Bildschirm. Auf schmalen Displays kann Home Assistant auf eine Spalte wechseln.
+- **Dashboard-Karte oder Anordnung stimmt nicht:** Siehe die zentrale [Dashboard-Anleitung](dashboard.md).
 - **Die Automation wird nicht ausgelöst:** Prüfe die tatsächliche Entitäts-ID des aktuellen Preis-Sensors und ob sein Zustand numerisch ist, zum Beispiel `0.1583`.
 
 ## Quellen
