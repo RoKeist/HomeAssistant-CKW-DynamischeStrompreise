@@ -121,6 +121,8 @@ Erstelle einen Template-Sensor-Helfer unter **Einstellungen → Geräte & Dienst
 
 Setze die Einheit auf `CHF/kWh`. Lasse die Geräteklasse leer. Falls der Helfer eine Zustandsklasse anbietet, wähle `measurement` (Messwert). Speichere den Helfer und prüfe die von Home Assistant erstellte Entitäts-ID. Die folgenden Beispiele verwenden `sensor.ckw_aktueller_preis`; ersetze sie durch die tatsächlich erstellte ID, falls sie abweicht.
 
+Für 5-Stunden-Fenster zum Laden eines Elektroautos siehe die separate [Anleitung zu Auto-Laden-Zeitfenstern](auto-laden.md).
+
 ## 4. Automationsbeispiel
 
 Dieses Beispiel wird ausgelöst, wenn der aktuelle Preis die Schwelle von 0,20 CHF/kWh (20 Rp./kWh) nach unten überschreitet. Ergänze unter `actions:` die gewünschte Aktion.
@@ -161,4 +163,3 @@ Ein numerischer Zustandsauslöser reagiert, wenn der Sensor die Schwelle übersc
 ## Mitwirken
 
 Fehlermeldungen und Pull Requests mit Korrekturen, getesteten Verbesserungen oder Hinweisen zur Kompatibilität sind willkommen. Entferne persönliche Angaben, Tokens, IP-Adressen und private Home-Assistant-Entitätsnamen, bevor du Konfigurationen oder Protokolle teilst.
-
