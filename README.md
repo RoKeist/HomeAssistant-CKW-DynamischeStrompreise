@@ -9,13 +9,8 @@ Die Dashboard-Vorschau zeigt Beispielwerte vom 22. November 2026. Preise und Zei
 ## Inhaltsverzeichnis
 
 - [CKW-Tarifdaten-Package](packages/ckw_tarife.yaml)
-- [Einrichtung und Sensor-Helfer](docs/anleitung.md)
+- [1. CKW-Package einbinden](docs/anleitung.md#1-ckw-package-einbinden)
 - [Auto-Laden-Zeitfenster](docs/auto-laden.md)
-- [Dashboard-Karten und Anordnung](docs/dashboard.md)
-- [Installation](#installation)
-
-## Installation
-
-Folge der [Einrichtungsanleitung](docs/anleitung.md), um das Beispiel einzubinden und Sensoren und Helfer einzurichten. Alle Dashboard-Karten stehen in der [Dashboard-Dokumentation](docs/dashboard.md).
+- [CKW-Dashboard für Home Assistant](docs/dashboard.md)
 
 Prüfe den Tarifnamen und die tatsächlich erzeugten Entity-IDs deiner Installation. CKW veröffentlicht Preise für den Folgetag erst später am Tag; Beispielwerte in Screenshots sind Momentaufnahmen.

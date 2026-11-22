@@ -7,16 +7,16 @@ Dieses unabhängige Community-Projekt steht in keiner Verbindung zu CKW oder zum
 ## Inhaltsverzeichnis
 
 - [Voraussetzungen](#voraussetzungen)
-- [CKW-Package einbinden](#1-ckw-package-einbinden)
-- [Aktuellen Preis als Helfer erstellen](#2-template-sensor-für-den-aktuellen-preis)
-- [Acht 2-Stunden-Zeitfenster](#3-acht-zeitfenster-sensoren-erstellen)
-- [Preisempfehlung für heute und morgen](#4-preisempfehlung-für-heute-und-morgen)
-- [Automationen](#5-automationsbeispiel)
-- [Preise nach Mittag aktualisieren](#preise-nach-mittag-automatisch-aktualisieren)
+- [1. CKW-Package einbinden](#1-ckw-package-einbinden)
+- [2. Template-Sensor für den aktuellen Preis](#2-template-sensor-für-den-aktuellen-preis)
+- [3. Acht Zeitfenster-Sensoren erstellen](#3-acht-zeitfenster-sensoren-erstellen)
+- [4. Preisempfehlung für heute und morgen](#4-preisempfehlung-für-heute-und-morgen)
+- [5. Automationsbeispiel](#5-automationsbeispiel)
+- [Preise nach Mittag automatisch aktualisieren](#preise-nach-mittag-automatisch-aktualisieren)
 - [Fehlerbehebung](#fehlerbehebung)
 - [Quellen](#quellen) · [Mitwirken](#mitwirken)
 
-**Weitere Anleitungen:** [Dashboard-Karten und Anordnung](dashboard.md) · [Auto-Laden-Zeitfenster](auto-laden.md)
+**Weitere Anleitungen:** [Karten im Dashboard anordnen](dashboard.md#karten-im-dashboard-anordnen) · [Auto-Laden-Zeitfenster](auto-laden.md)
 
 CKW veröffentlicht Viertelstundenwerte. Ein vollständiger Tag umfasst 96 Werte. Das Tarifprofil für den Folgetag ist ungefähr ab 12 Uhr mittags verfügbar. Der API-Wert `integrated` wird in CHF/kWh angegeben und entspricht nicht zwingend dem vollständigen Rechnungsbetrag: Steuern, Messentgelte, Konzessionsabgaben und Leistungspreise können darin fehlen.
 
@@ -239,7 +239,7 @@ Ein numerischer Zustandsauslöser reagiert, wenn der Sensor die Schwelle übersc
 
 ## Preise nach Mittag automatisch aktualisieren
 
-Die CKW-Preise für den Folgetag werden üblicherweise ungefähr ab 12 Uhr veröffentlicht. Ein manueller Dashboard-Button kann `sensor.ckw_tarifdaten` sofort aktualisieren; seine Konfiguration steht in der [Dashboard-Anleitung](dashboard.md#ckw-preise-aktualisieren). Die folgende Automation startet täglich um 12:05 Uhr, aktualisiert den CKW-Sensor und prüft danach, ob Preise für morgen vorhanden sind. Falls nicht, versucht sie es bis zu acht weitere Male im Abstand von 15 Minuten. Sobald mindestens ein Preis für morgen eintrifft, endet die Wiederholung.
+Die CKW-Preise für den Folgetag werden üblicherweise ungefähr ab 12 Uhr veröffentlicht. Ein manueller Dashboard-Button kann `sensor.ckw_tarifdaten` sofort aktualisieren; seine Konfiguration steht unter [CKW-Preise aktualisieren](dashboard.md#ckw-preise-aktualisieren). Die folgende Automation startet täglich um 12:05 Uhr, aktualisiert den CKW-Sensor und prüft danach, ob Preise für morgen vorhanden sind. Falls nicht, versucht sie es bis zu acht weitere Male im Abstand von 15 Minuten. Sobald mindestens ein Preis für morgen eintrifft, endet die Wiederholung.
 
 Füge den Eintrag in `automations.yaml` ein. Die Datei wird in diesem Beispiel über `automation: !include automations.yaml` in `configuration.yaml` eingebunden. Ersetze `sensor.ckw_tarifdaten`, falls deine Installation eine andere Entity-ID verwendet.
 
@@ -289,7 +289,7 @@ Die Wiederholung ist auf acht zusätzliche Abrufe begrenzt. Die manuelle Schaltf
 - **Die Entität erscheint nicht auf der Zuständeseite:** Verwende in Home Assistant den Entitätsfilter und nicht die Seitensuche des Browsers. Suche nach dem Anzeigenamen des Sensors oder nach `ckw`.
 - **Die Karte für morgen ist leer:** Prüfe den letzten `start_timestamp` im Attribut `prices` sowie `publication_timestamp`. CKW veröffentlicht die Preise für den Folgetag ungefähr um die Mittagszeit.
 - **Es erscheinen nur die heutigen Preise:** Prüfe im CKW-Package, ob die Abfrage `start_timestamp` und `end_timestamp` für heute und morgen enthält. Aktualisiere den Sensor erneut, nachdem CKW das nächste Tagesprofil veröffentlicht hat.
-- **Dashboard-Karte oder Anordnung stimmt nicht:** Siehe die zentrale [Dashboard-Anleitung](dashboard.md).
+- **Dashboard-Karte oder Anordnung stimmt nicht:** Siehe [Karten im Dashboard anordnen](dashboard.md#karten-im-dashboard-anordnen).
 - **Die Automation wird nicht ausgelöst:** Prüfe die tatsächliche Entitäts-ID des aktuellen Preis-Sensors und ob sein Zustand numerisch ist, zum Beispiel `0.1583`.
 
 ## Quellen
