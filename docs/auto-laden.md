@@ -9,12 +9,13 @@ Ein 5-Stunden-Fenster besteht aus 20 aufeinanderfolgenden CKW-Viertelstundenwert
 
 Beide Sensoren sind Template-Sensor-Helfer. Erstelle sie unter **Einstellungen → Geräte & Dienste → Helfer → Helfer erstellen → Template → Sensor**. Füge jeweils nur den Jinja-Code ins Feld **Zustand** ein. Lasse Geräteklasse und Einheit leer, da der Zustand den Zeitraum und den Durchschnittspreis als Text enthält. Prüfe die erzeugten Entity-IDs in Home Assistant und passe die Referenz im zweiten Sensor bei Bedarf an.
 
-Die Karten für diese beiden Sensoren stehen in den [Strompreis-Karten](dashboard.md#strompreis-karten). Die Paket-Einrichtung steht unter [1. CKW-Package einbinden](anleitung.md#1-ckw-package-einbinden).
+Die Karten für diese beiden Sensoren stehen in den [Strompreis-Karten](dashboard.md#strompreis-karten). Die Paket-Einrichtung steht unter [1. CKW-Tarifdaten-Package einbinden](anleitung.md#1-ckw-tarifdaten-package-einbinden).
 
 ## Inhaltsverzeichnis
 
 - [Günstigstes 5-Stunden-Fenster](#günstigstes-5-stunden-fenster)
 - [Teuerstes nicht überlappendes 5-Stunden-Fenster](#teuerstes-nicht-überlappendes-5-stunden-fenster)
+- [1. CKW-Tarifdaten-Package einbinden](anleitung.md#1-ckw-tarifdaten-package-einbinden)
 - [Strompreis-Karten](dashboard.md#strompreis-karten)
 
 ## Günstigstes 5-Stunden-Fenster

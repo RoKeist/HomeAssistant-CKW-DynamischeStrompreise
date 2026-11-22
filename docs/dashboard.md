@@ -2,7 +2,7 @@
 
 Diese Datei beschreibt das aktuelle CKW-Dashboard und enthält die YAML-Konfigurationen der dargestellten Karten. Die Beispiele verwenden die unten aufgeführten Entity-IDs. Wenn Home Assistant bei dir andere IDs vergeben hat, ersetze sie durch die tatsächlichen IDs deiner Entitäten.
 
-Zum Einstieg: [1. CKW-Package einbinden](anleitung.md#1-ckw-package-einbinden) und Sensoren einrichten. Die Auto-Laden-Helfer stehen in [Auto-Laden-Zeitfenster](auto-laden.md). Diese Datei ist die zentrale Referenz für sämtliche Dashboard-Karten und ihre Anordnung.
+Zum Einstieg: [1. CKW-Tarifdaten-Package einbinden](anleitung.md#1-ckw-tarifdaten-package-einbinden) und Sensoren einrichten. Die Auto-Laden-Helfer stehen in [Auto-Laden-Zeitfenster](auto-laden.md). Diese Datei ist die zentrale Referenz für sämtliche Dashboard-Karten und ihre Anordnung.
 
 ## Inhaltsverzeichnis
 

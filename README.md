@@ -8,7 +8,6 @@ Die Dashboard-Vorschau zeigt Beispielwerte vom 22. November 2026. Preise und Zei
 
 ## Inhaltsverzeichnis
 
-- [CKW-Tarifdaten-Package](packages/ckw_tarife.yaml)
 - [Anleitung](docs/anleitung.md)
 - [Auto-Laden-Zeitfenster](docs/auto-laden.md)
 - [CKW-Dashboard für Home Assistant](docs/dashboard.md)
