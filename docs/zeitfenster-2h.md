@@ -1,4 +1,4 @@
-# 2-Stunden-Zeitfenster
+# Hoch- & Tiefpreis Zeitfenster
 
 Diese Anleitung richtet die acht Template-Sensor-Helfer für die günstigsten und teuersten 2-Stunden-Zeitfenster von heute und morgen ein. Voraussetzung ist das in der [Anleitung](anleitung.md#1-ckw-tarifdaten-package-einbinden) beschriebene CKW-Tarifdaten-Package mit `sensor.ckw_tarifdaten`.
 

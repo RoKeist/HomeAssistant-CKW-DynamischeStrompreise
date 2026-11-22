@@ -83,5 +83,5 @@ Der Ausgabezustand ist kurz gehalten. Die lesbare Darstellung der Empfehlungen i
 Für 5-Stunden-Fenster zum Laden eines Elektroautos siehe die separate [Anleitung zu Auto-Laden-Zeitfenstern](auto-laden.md).
 ## Weiterführende Anleitungen
 
-- [Acht 2-Stunden-Zeitfenster-Sensoren](zeitfenster-2h.md)
+- [Hoch- & Tiefpreis Zeitfenster](zeitfenster-2h.md)
 - [Dashboard-Karten für Zeitfenster und Empfehlungen](dashboard.md#strompreis-karten)
