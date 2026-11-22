@@ -7,7 +7,7 @@ Dieses unabhängige Community-Projekt steht in keiner Verbindung zu CKW oder zum
 ## Inhaltsverzeichnis
 
 - [Voraussetzungen](#voraussetzungen)
-- [1. CKW-Package einbinden](#1-ckw-package-einbinden)
+- [1. CKW-Tarifdaten-Package einbinden](#1-ckw-tarifdaten-package-einbinden)
 - [2. Template-Sensor für den aktuellen Preis](#2-template-sensor-für-den-aktuellen-preis)
 - [3. Acht Zeitfenster-Sensoren erstellen](#3-acht-zeitfenster-sensoren-erstellen)
 - [4. Preisempfehlung für heute und morgen](#4-preisempfehlung-für-heute-und-morgen)
@@ -27,9 +27,11 @@ CKW veröffentlicht Viertelstundenwerte. Ein vollständiger Tag umfasst 96 Werte
 
 Das CKW-Package erstellt `sensor.ckw_tarifdaten`. Die übrigen Vorlagen und Karten verwenden diese Entität als Datenquelle.
 
-## 1. CKW-Package einbinden
+## 1. CKW-Tarifdaten-Package einbinden
 
-Das einzige Konfigurationsbeispiel für den CKW-Datenabruf ist `packages/ckw_tarife.yaml`. Kopiere die Datei in den Ordner `packages/` deiner Home-Assistant-Konfiguration. Stelle sicher, dass `configuration.yaml` diesen Ordner einbindet:
+Das einzige Konfigurationsbeispiel für den CKW-Datenabruf ist das [CKW-Tarifdaten-Package](../packages/ckw_tarife.yaml). Es fragt alle sechs Stunden den Tarif `home_dynamic` mit dem Datentyp `integrated` für heute und morgen ab. Die Abfrage verwendet die Zeitzone von Home Assistant.
+
+Kopiere die Datei in den Ordner `packages/` deiner Home-Assistant-Konfiguration. Stelle sicher, dass `configuration.yaml` diesen Ordner einbindet:
 
 ```yaml
 homeassistant:
@@ -38,7 +40,7 @@ homeassistant:
 
 Wenn `homeassistant:` in deiner `configuration.yaml` bereits vorhanden ist, ergänze dort nur den Eintrag `packages:`.
 
-Das Package fragt die CKW-Preise für heute und morgen ab. Prüfe nach dem Einbinden, dass `sensor.ckw_tarifdaten` vorhanden ist und die Attribute `publication_timestamp` und `prices` enthält. Der Sensorzustand `OK` bestätigt, dass die Entität geladen wurde.
+Das Package erstellt `sensor.ckw_tarifdaten` mit dem Zustand `OK`. Die veröffentlichten Preise und der Veröffentlichungszeitpunkt stehen in den Attributen `prices` und `publication_timestamp`. Prüfe nach dem Einbinden, dass die Entität und beide Attribute vorhanden sind.
 
 ## 2. Template-Sensor für den aktuellen Preis
 
