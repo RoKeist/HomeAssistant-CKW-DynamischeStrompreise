@@ -34,9 +34,19 @@ Für jeden Sensor: Code kopieren, die drei Parameterzeilen oben setzen, den Code
 {% set p = state_attr('sensor.ckw_tarifdaten', 'prices') or [] %}
 {% set zieltag = (now() + timedelta(days=tage_voraus)).strftime('%Y-%m-%d') %}
 {% set zieltag_morgen = (now() + timedelta(days=tage_voraus + 1)).strftime('%Y-%m-%d') %}
+{% set tagespreise = namespace(vorhanden=false) %}
+{% for q in p %}
+  {% if q.start_timestamp is defined and q.start_timestamp[:10] == zieltag
+        and q.integrated is defined and q.integrated | count > 0 %}
+    {% set tagespreise.vorhanden = true %}
+  {% endif %}
+{% endfor %}
 {% set ns = namespace(fenster=[]) %}
 
 {# Acht Viertelstundenpreise ergeben ein 2-Stunden-Fenster #}
+{% if tage_voraus == 1 and not tagespreise.vorhanden %}
+warte auf Preise von morgen
+{% else %}
 {% for i in range(0, (p | count) - 7) %}
   {% set block = p[i:i+8] %}
   {% set werte = namespace(liste=[]) %}
@@ -88,6 +98,7 @@ Für jeden Sensor: Code kopieren, die drei Parameterzeilen oben setzen, den Code
   {{ p[i].start_timestamp[:10] }} · {{ p[i].start_timestamp[11:16] }}–{{ p[i+7].end_timestamp[11:16] }} · {{ '%.2f' | format(auswahl.fenster.preis * 100) }} Rp./kWh
 {% else %}
 Für den gewählten Tag wurden keine passenden CKW-Preise gefunden
+{% endif %}
 {% endif %}
 ```
 
