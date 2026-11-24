@@ -5,7 +5,7 @@ Diese Anleitung ergänzt die CKW-Preisfenster um zwei Template-Sensor-Helfer fü
 - **Auto laden** ermittelt das günstigste zusammenhängende Zeitfenster von fünf Stunden.
 - **Auto laden gesperrt** ermittelt das teuerste zusammenhängende Zeitfenster von fünf Stunden, das sich nicht mit „Auto laden“ überschneidet.
 
-Ein 5-Stunden-Fenster besteht aus 20 aufeinanderfolgenden CKW-Viertelstundenwerten. Gesucht wird im Zeitraum von heute 12:00 Uhr bis morgen 12:00 Uhr. Verwendet werden ausschliesslich Preise, die im Attribut `prices` von `sensor.ckw_tarifdaten` vorhanden sind. Fehlende Preise werden nicht durch heutige Werte ersetzt. Solange morgen keine Preise veröffentlicht sind, können die Sensoren nur vollständige Fenster aus den vorhandenen Preisen bilden.
+Ein 5-Stunden-Fenster besteht aus 20 aufeinanderfolgenden CKW-Viertelstundenwerten. Gesucht wird im Zeitraum von heute 12:00 Uhr bis morgen 12:00 Uhr. Verwendet werden ausschliesslich Preise, die im Attribut `prices` von `sensor.ckw_tarifdaten` vorhanden sind. Solange kein gültiger Preis für morgen vorhanden ist, zeigen beide Sensoren `warte auf Preise von morgen`. Sobald Preise für morgen vorliegen, berechnen sie die 5-Stunden-Fenster aus den verfügbaren Preisen.
 
 Beide Sensoren sind Template-Sensor-Helfer. Erstelle sie unter **Einstellungen → Geräte & Dienste → Helfer → Helfer erstellen → Template → Sensor**. Füge jeweils nur den Jinja-Code ins Feld **Zustand** ein. Lasse Geräteklasse und Einheit leer, da der Zustand den Zeitraum und den Durchschnittspreis als Text enthält. Prüfe die erzeugten Entity-IDs in Home Assistant und passe die Referenz im zweiten Sensor bei Bedarf an.
 
@@ -24,10 +24,21 @@ Name: `Auto laden`
 
 ```jinja
 {% set p = state_attr('sensor.ckw_tarifdaten', 'prices') or [] %}
+{% set morgen = (today_at('00:00') + timedelta(days=1)).strftime('%Y-%m-%d') %}
+{% set morgen_preise = namespace(vorhanden=false) %}
+{% for q in p %}
+  {% if q.start_timestamp is defined and q.start_timestamp[:10] == morgen
+        and q.integrated is defined and q.integrated | count > 0 %}
+    {% set morgen_preise.vorhanden = true %}
+  {% endif %}
+{% endfor %}
 {% set start_limit = as_timestamp(today_at('12:00')) %}
 {% set end_limit = start_limit + 86400 %}
 {% set ns = namespace(fenster=[]) %}
 
+{% if not morgen_preise.vorhanden %}
+warte auf Preise von morgen
+{% else %}
 {% for i in range(0, (p | count) - 19) %}
   {% set block = p[i:i+20] %}
   {% set werte = namespace(liste=[]) %}
@@ -53,6 +64,7 @@ Name: `Auto laden`
 {% else %}
 Für heute 12:00 bis morgen 12:00 wurden keine vollständigen 5-Stunden-Fenster mit verfügbaren CKW-Preisen gefunden
 {% endif %}
+{% endif %}
 ```
 
 ## Teuerstes nicht überlappendes 5-Stunden-Fenster
@@ -64,11 +76,21 @@ Der Sensor liest den Zeitraum aus `sensor.auto_laden` und lässt jedes 5-Stunden
 ```jinja
 {% set p = state_attr('sensor.ckw_tarifdaten', 'prices') or [] %}
 {% set guenstig = states('sensor.auto_laden') %}
+{% set morgen = (today_at('00:00') + timedelta(days=1)).strftime('%Y-%m-%d') %}
+{% set morgen_preise = namespace(vorhanden=false) %}
+{% for q in p %}
+  {% if q.start_timestamp is defined and q.start_timestamp[:10] == morgen
+        and q.integrated is defined and q.integrated | count > 0 %}
+    {% set morgen_preise.vorhanden = true %}
+  {% endif %}
+{% endfor %}
 {% set start_limit = as_timestamp(today_at('12:00')) %}
 {% set end_limit = start_limit + 86400 %}
 {% set ns = namespace(fenster=[]) %}
 
-{% if guenstig not in ['unknown', 'unavailable', 'none', ''] %}
+{% if not morgen_preise.vorhanden %}
+warte auf Preise von morgen
+{% elif guenstig not in ['unknown', 'unavailable', 'none', ''] %}
   {% set teile = guenstig.split(' · ') %}
   {% set guenstig_zeiten = teile[1].split('–') %}
   {% set guenstig_start = as_timestamp(as_datetime(teile[0] ~ 'T' ~ guenstig_zeiten[0] ~ ':00')) %}

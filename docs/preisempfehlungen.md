@@ -20,8 +20,18 @@ Die Tageszuordnung verwendet den Starttag eines Fensters. Ein Fenster, das exakt
 {% set p = state_attr('sensor.ckw_tarifdaten', 'prices') or [] %}
 {% set zieltag = (now() + timedelta(days=tage_voraus)).strftime('%Y-%m-%d') %}
 {% set zieltag_morgen = (now() + timedelta(days=tage_voraus + 1)).strftime('%Y-%m-%d') %}
+{% set tagespreise = namespace(vorhanden=false) %}
+{% for q in p %}
+  {% if q.start_timestamp is defined and q.start_timestamp[:10] == zieltag
+        and q.integrated is defined and q.integrated | count > 0 %}
+    {% set tagespreise.vorhanden = true %}
+  {% endif %}
+{% endfor %}
 {% set ns = namespace(fenster=[]) %}
 
+{% if tage_voraus == 1 and not tagespreise.vorhanden %}
+warte auf Preise von morgen
+{% else %}
 {% for i in range(0, (p | count) - 7) %}
   {% set block = p[i:i+8] %}
   {% set werte = namespace(liste=[]) %}
@@ -80,6 +90,7 @@ Die Tageszuordnung verwendet den Starttag eines Fensters. Ein Fenster, das exakt
 {{ 'Morgen' if tage_voraus == 1 else 'Heute' }} ({{ zieltag }}): Günstig {{ p[b[0]].start_timestamp[11:16] }}–{{ p[b[0]+7].end_timestamp[11:16] }} und {{ p[b[1]].start_timestamp[11:16] }}–{{ p[b[1]+7].end_timestamp[11:16] }}. Teuer {{ p[t[0]].start_timestamp[11:16] }}–{{ p[t[0]+7].end_timestamp[11:16] }} und {{ p[t[1]].start_timestamp[11:16] }}–{{ p[t[1]+7].end_timestamp[11:16] }}.
 {% else %}
 Für {{ 'morgen' if tage_voraus == 1 else 'heute' }} konnten nicht genügend CKW-Preise für vier nicht überlappende Zeitfenster gefunden werden.
+{% endif %}
 {% endif %}
 ```
 
